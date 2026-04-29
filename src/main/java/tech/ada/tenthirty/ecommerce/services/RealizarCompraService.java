@@ -56,12 +56,8 @@ public class RealizarCompraService {
         ReservarEstoqueRequest reservarEstoqueRequest = new ReservarEstoqueRequest();
         reservarEstoqueRequest.setCompraId(identificador);
         reservarEstoqueRequest.setItems(items);
-        try {
-            reservarItemEstoqueProducer.enviar(reservarEstoqueRequest);
-        } catch (JsonProcessingException e) {
-            log.error("Não foi possível enviar a mensagem ao destinatário", e);
-            throw new RuntimeException(e);
-        }
+        reservarItemEstoqueProducer.publish(reservarEstoqueRequest);
+
     }
 
     private ItemAdicionadoRequest mapToItemAdicionadoRequest(Item item) {

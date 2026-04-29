@@ -30,17 +30,44 @@ spring:
   liquibase:
     enabled: false
     change-log: classpath:db/changelog/changelog-local.xml
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: admin
-    password: passw123
-    cache:
-      connection:
-        mode: CONNECTION
-      channel:
-        size: 50
-      checkout-timeout: 10000
+#  rabbitmq:
+#    host: 127.0.0.1
+#    port: 5672
+#    username: admin
+#    password: passw123
+#    cache:
+#      connection:
+#        mode: CONNECTION
+#      channel:
+#        size: 50
+#      checkout-timeout: 10000
+  cloud:
+    stream:
+      defaultBinder: rabbit_amqp
+      bindings:
+        publish-out-0:
+          binder: rabbit_amqp
+          destination: reservar_estoque
+          producer:
+            requiredGroups: reservar_estoque_queue
+          autoBinDlq: true
+          maxAttempts: 2
+      binders:
+        rabbit_amqp:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: 127.0.0.1
+                port: 5672
+                username: admin
+                password: passw123
+      rabbit:
+        bindings:
+          output:
+            producer:
+              declare-exchange: false
+
 
 
 negocio:

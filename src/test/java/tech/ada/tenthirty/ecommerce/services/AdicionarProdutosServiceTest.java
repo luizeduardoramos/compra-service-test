@@ -74,7 +74,7 @@ public class AdicionarProdutosServiceTest {
     @Test
     void shouldUpdateAnExistingCompra(){
         Compra compraSample = getCompraSample();
-        Mockito.when(compraRepository.findByIdentificador(ArgumentMatchers.anyString()))
+        when(compraRepository.findByIdentificador(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.of(compraSample));
         ItemAdicionadoRequest itemAdicionado = getItemAdicionado("123", 12.4);
         itemAdicionado.setIdCompra(compraSample.getIdentificador());
@@ -92,7 +92,7 @@ public class AdicionarProdutosServiceTest {
 
     @Test
     void shouldRaiseAnExcetionWithCompraIdNotFound(){
-        Mockito.when(compraRepository.findByIdentificador(ArgumentMatchers.anyString()))
+        when(compraRepository.findByIdentificador(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.empty());
         ItemAdicionadoRequest itemAdicionado = getItemAdicionado("123", 12.4);
         itemAdicionado.setIdCompra("Any");
@@ -106,7 +106,7 @@ public class AdicionarProdutosServiceTest {
      void shouldRaiseAnErrorWithStockQuantityIsLessThanRequired(){
 
         Compra compraSample = getCompraSample();
-        Mockito.when(compraRepository.findByIdentificador(ArgumentMatchers.anyString()))
+        lenient().when(compraRepository.findByIdentificador(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.of(compraSample));
         ItemAdicionadoRequest itemAdicionado = getItemAdicionado("123", 12.4);
         itemAdicionado.setQuantidade(51);

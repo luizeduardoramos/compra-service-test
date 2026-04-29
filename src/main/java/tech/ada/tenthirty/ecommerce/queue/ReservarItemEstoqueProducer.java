@@ -3,24 +3,50 @@ package tech.ada.tenthirty.ecommerce.queue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AMQP;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import tech.ada.tenthirty.ecommerce.queue.payload.ReservarEstoqueRequest;
 
-@Service
-@RequiredArgsConstructor
-public class ReservarItemEstoqueProducer {
-    private final RabbitTemplate rabbitTemplate;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Supplier;
 
-    private final Queue queue;
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class ReservarItemEstoqueProducer {
+
 
     private final ObjectMapper objectMapper;
+    private final StreamBridge streamBridge;
+    private final RabbitTemplate rabbitTemplate;
+    private final Queue queue;
+    @Value("${negocio.estoque.fila.reservar.out}")
+    private String fila;
 
-    public void enviar(ReservarEstoqueRequest reservarEstoque) throws JsonProcessingException {
-        String message = objectMapper.writeValueAsString(reservarEstoque);
-        rabbitTemplate.convertSendAndReceive(queue.getName(), message);
+    private String convert(ReservarEstoqueRequest reservarEstoque) {
+        try {
+            return objectMapper.writeValueAsString(reservarEstoque);
+        } catch (JsonProcessingException e) {
+            log.error("Error trying to convert object {}",e.getMessage(),e);
+            return Strings.EMPTY;
+        }
     }
+
+   public void publish (ReservarEstoqueRequest reservarEstoqueRequest){
+       String converted = convert(reservarEstoqueRequest);
+       streamBridge.send("publish-out-0", reservarEstoqueRequest);
+       //rabbitTemplate.convertAndSend(queue.getName(), converted);
+       log.info("mensagem enviada com sucesso. {}", converted);
+   }
 
 }
