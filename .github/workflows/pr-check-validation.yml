@@ -1,4 +1,4 @@
-name: Java CI with Maven
+name: Java CI with Gradle
 
 on:
   pull_request:
@@ -17,7 +17,9 @@ jobs:
       with:
         java-version: '21'
         distribution: 'corretto'
-        cache: 'maven'
+        cache: 'gradle'
 
-    - name: Run Unit Tests
-      run: ./gradlew test
+    - name: Run Gradle Tests
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean test --no-daemon
